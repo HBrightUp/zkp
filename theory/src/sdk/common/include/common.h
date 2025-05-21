@@ -1,0 +1,1 @@
+void swap(long a, long b);

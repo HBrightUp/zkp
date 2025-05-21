@@ -1,4 +1,5 @@
-cd ./build
+cd ~/github/myself/zkp/theory/build
+rm -rf ./*
 cmake ../
 make
-./theory
+./src/theory
