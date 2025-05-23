@@ -2,13 +2,7 @@
 
 #include<vector>
 #include "../../common/include/common.h"
-
-// 使用 埃拉托斯特尼筛法 查找 N 内的素数
-
-
- const  ull max_prime_find_support =  1024 * 1024* 1024;
-
-
+#include "../../common/include/errorcode.h"
 
 
 
@@ -17,23 +11,37 @@ class Prime
 {
     public:
         ~Prime();
+        ErrorCode find_prime_with_eratosthenes (const ull n, std::set<ull>& primes);
 
-        bool calc_gcd_with_euclidean(const ull a, const ull b, ull& gcd);
-        bool extended_euclidean_algorithm(const long _a, const long _b, long& _gcd, long& bz_x, long& bz_y) ;
+        ErrorCode calc_gcd_with_euclidean(const ull a, const ull b, ull& gcd);
+        ErrorCode extended_euclidean(const long _a, const long _b, long& _gcd, long& bz_x, long& bz_y) ;
 
         bool is_prime(const ull n);
-        bool is_prime_by_fermat(const ull n);
-        bool is_prime_by_miller_rabin (const ull n);
         bool is_prime_by_baillie_psw(const ull P_N, const ull P_K);
 
-        bool factorization(const ull n, std::vector<ull>& factor);
+        ErrorCode factorization(const ull n, std::vector<ull>& factor);
 
-        bool find_prime_with_eratosthenes (const ull n, std::set<ull>& primes);
-    
+        ErrorCode chinese_remainder_theorem(const std::vector<ull>& a, const std::vector<ull>& m, ull& ret);
+
+        
+
+
+        bool is_coprime(const std::vector<ull>& v);
+
+
+
+        // WARNING: this method only for learn
+        bool is_prime_by_fermat(const ull n);
+        bool is_prime_by_miller_rabin (const ull n);
+
+
+
     
     private:
         ull pow(ull pow_a, ull pow_b, ull pow_c);
         bool MiillerTest(ull MT_dt, ull MT_num);
+        bool calc_ti(const ull Mi, const ull mi, ull& ti);
+        
 
     
     public:

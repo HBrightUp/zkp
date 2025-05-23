@@ -4,10 +4,15 @@
 #include<chrono>
 #include<set>
 #include<memory>
+#include<cassert>
+#include"../include/prime_test.h"
+#include"../include/prime.h"
 #include "../../sdk/common/include/common.h"
 #include "../../sdk/common/include/prime_table.h"
 #include "../../sdk/maths/include/prime.h"
-#include "../../sdk/maths/include/gcd.h"
+#include "../../sdk/common/include/errorcode.h"
+
+
 
 
 struct PrimeFermatMiiller {
@@ -30,22 +35,23 @@ bool PrimeFermatMiiller::operator<(const PrimeFermatMiiller& other) const
     }
 }
 
-void test_gcd_euclidean() {
+void PrimeTest::test_gcd_euclidean() {
 
     std::shared_ptr<Prime> sp(new Prime());
     const ull a = 300;
-    const ull b = 240;
+    const ull b = 45;
     ull max_divisor = 0;
 
-    if(!sp->calc_gcd_with_euclidean(a, b, max_divisor)) {
+    ErrorCode err = sp->calc_gcd_with_euclidean(a, b, max_divisor);
+    if(err != ErrorCode::Success) {
         std::cout << "call calc_greatest_common_divisor failed." << std::endl;
         return ;
-    } else {
-        std::cout << "GCD(" << a << "," << b << ") = " << max_divisor << std::endl;
-    }
+    } 
+
+    assert(max_divisor == 15);
 }
 
-void test_gcd__extend_euclidean() {
+void PrimeTest::test_gcd__extend_euclidean() {
 
     const long a = 64;
     const long b = 23;
@@ -56,61 +62,67 @@ void test_gcd__extend_euclidean() {
     std::shared_ptr<Prime> sp(new Prime());
 
     // calc Bayer formula and Modular Inverse
-    bool bret = sp->extended_euclidean_algorithm( a, b, gcd, x, y );
-    if (!bret) {
-        std::cout << "call extended_euclidean_algorithm failed." << std::endl;
+    ErrorCode err = sp->extended_euclidean( a, b, gcd, x, y );
+    if (err != ErrorCode::Success) {
+        std::cout << "call extended_euclidean failed." << std::endl;
         return ;
     }
 
-    std::cout << "gcd: " << gcd << ",x: " << x << " ,y: " << y << std::endl;
-    if (a * x + b * y != gcd) {
-        std::cout  << "check Bayer formula failed." << std::endl;
-    }
+    //std::cout << "gcd: " << gcd << ",x: " << x << " ,y: " << y << std::endl;
+    assert(a * x + b * y == gcd);
 }
 
 
 // use eratosthenes produce primes and check it with  Baillie PSW and factorization.
-void test_eratosthenes() {
+void PrimeTest::test_eratosthenes() {
     std::shared_ptr<Prime> p(new Prime());
 
     // 5761455 primes exist within 1e8. 
-    const ull max_range = 100000000;
+    // 1229 primes exist within 1e4. 
+    const ull max_range = 1e4;
 
     std::set<ull> primes;
-    bool bret = p->find_prime_with_eratosthenes(max_range, primes);
-    if (!bret) {
-        std::cout << "test eratosthenes failed.";
+    ErrorCode err = p->find_prime_with_eratosthenes(max_range, primes);
+    if (err != ErrorCode::Success) {
+        std::cout << "call  find_prime_with_eratosthenes failed.";
         return ;
     }
 
     std::cout << "Amount of primes within " << max_range << " : " << primes.size() << std::endl;
 
     //use Baillie PSW to check
+    ull no = 0;
+    std::vector<ull> factors;
+
     for( ull v : primes) {
-        
-        std::cout << "check prime: " << v << std::endl;
+
+        //std::cout << "start check: " << v << std::endl;
 
         if(!p->is_prime_by_baillie_psw(v, 47)) {
             std::cout << "check failed: " << v << std::endl;
-            break;
-        } else {
-            //std::cout << "Baillie PSW check success: " << v << std::endl;
+            return ;
         }
 
-        std::vector<ull> factors;
-        if(p->factorization(v, factors)) {
+        factors.clear();
+        ErrorCode err = p->factorization(v, factors);
+        if(err == ErrorCode::Success) {
             if (factors.empty()) {
                 //std::cout << "Common check success: " << v << std::endl;
             } else {
                 std::cout << "Common check failed: " << v << std::endl;
-                break;
+                return ;
             }
         } else {
             std::cout << "call factorization failed." << std::endl;
-            break;
+            return ;
         }
+
+        ++no;
+        //std::cout << "check prime success: " << v << " ,Serial Number: " << no << std::endl;
         
     }
+
+    assert(no == 1229);
 }
 
 
@@ -118,7 +130,7 @@ void test_eratosthenes() {
     Function:  Comparing two methods of determining prime numbers: Little Theorem and Baillie-PSW.
     Result:  Baillie-PSW is a superior method.
 */
-void test_is_prime() {
+void PrimeTest::test_is_prime() {
 
     std::shared_ptr<Prime> p(new Prime());
 
@@ -186,4 +198,26 @@ void test_is_prime() {
             //std::this_thread::sleep_for(std::chrono::milliseconds(10000));
         }
     }
+}
+
+void PrimeTest::test_chinese_remainder_theorem() {
+    std::shared_ptr<Prime> sp(new Prime());
+
+    std::vector<ull> a,m;
+
+    a.push_back(2);
+    a.push_back(3);
+    a.push_back(2);
+    m.push_back(3);
+    m.push_back(5);
+    m.push_back(7);
+
+    ull x = 0;
+    ErrorCode err = sp->chinese_remainder_theorem(a, m, x);
+    if ( err != ErrorCode::Success) {
+        std::cout << "call chinese_remainder_theorem failed." << std::endl;
+        return ;
+    }
+
+    assert(x == 23);
 }

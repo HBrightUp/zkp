@@ -1,6 +1,6 @@
 project (maths)
 
-add_library(${PROJECT_NAME} src/gcd.cpp src/prime.cpp)
+add_library(${PROJECT_NAME}  src/prime.cpp)
 add_library(sdk::maths ALIAS ${PROJECT_NAME})
 
 target_include_directories( ${PROJECT_NAME}
