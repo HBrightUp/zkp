@@ -14,6 +14,8 @@ class PrimeTest{
 
 
         void check_euler_theorem();
+
+        void test_all();
 };
 
 

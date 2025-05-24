@@ -284,3 +284,14 @@ void PrimeTest::check_euler_theorem() {
     assert( ull(std::pow(a, count)) % n == 1);
 
 }
+
+void PrimeTest::test_all() {
+
+    test_eratosthenes();
+    test_gcd_euclidean();
+    test_gcd__extend_euclidean();
+    test_chinese_remainder_theorem();
+    test_get_amounts_coprime_within_n();
+    test_get_unit_order();
+    check_euler_theorem();
+}
