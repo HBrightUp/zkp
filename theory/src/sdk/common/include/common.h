@@ -7,7 +7,7 @@
 typedef unsigned long long  ull;
 
 // Get the max number of uul: 18446744073709551615
-const ull MAX_ULL_NUMBER = std::numeric_limits<ull>::max();
+const ull Max_Ull_Number = std::numeric_limits<ull>::max();
 
  const  ull Max_Process_Prime_Support =  1e10;
 

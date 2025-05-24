@@ -4,6 +4,7 @@
 #include<memory>
 #include<set>
 #include <algorithm>
+#include<cmath>
 #include<cassert>
 #include"../../common/include/errorcode.h"
 #include "../include/prime.h"
@@ -13,9 +14,8 @@
 Prime::~Prime() { }
 
 
-// 使用 欧几理德算法查找两个数的最大公约数
 /*
-    Function: Use Eratosthenes algorithm to find prime numbers up to N
+    Function: Use Eratosthenes algorithm to find prime numbers within N
     Parameters:
         _n:    
     Return:    
@@ -193,7 +193,7 @@ ErrorCode Prime::factorization(const ull n, std::vector<ull>& factor) {
         factor: A collection of factors.  
 
 */
-ErrorCode Prime::calc_gcd_with_euclidean(const ull _a, const ull _b, ull& _gcd) {
+ErrorCode Prime::get_gcd_with_euclidean(const ull _a, const ull _b, ull& _gcd) {
 
     ull a = _a;
     ull b = _b;
@@ -235,7 +235,7 @@ ErrorCode Prime::extended_euclidean(const long _a, const long _b, long& _gcd, lo
     long b = _b;
 
     ull gcd = 0;
-    ErrorCode err = calc_gcd_with_euclidean(a, b, gcd);
+    ErrorCode err = get_gcd_with_euclidean(a, b, gcd);
     if( err != ErrorCode::Success) {
         return err;
     }
@@ -285,6 +285,17 @@ ErrorCode Prime::extended_euclidean(const long _a, const long _b, long& _gcd, lo
     return ErrorCode::Success;
 }
 
+
+/*
+    function: Compute the solution to the Chinese Remainder Theorem
+    Parameters:
+        _a:    a vector with all element a0 ~ ai.
+        _m:    a vector with all element m0 ~ mi.
+    Return: 
+        _ret:  result.  
+
+*/
+
 ErrorCode Prime::chinese_remainder_theorem(const std::vector<ull>& _a, const std::vector<ull>& _m, ull& _ret){
 
     ull size = _a.size();
@@ -327,6 +338,89 @@ ErrorCode Prime::chinese_remainder_theorem(const std::vector<ull>& _a, const std
     return ErrorCode::Success;
 }
 
+/*
+    function: Count the number which  coprime with N in  1 ~ N. use  Eular Totient  Function to solve it.
+    Parameters:
+        n:    
+    Return: 
+        amount:    
+
+*/
+ErrorCode Prime::get_amounts_coprime_within_n(const ull _n, ull& _amount) {
+
+    ull n = _n;
+
+    if (n == 1) {
+        _amount = 1;
+        return ErrorCode::Success;
+    }
+
+    // First case:  n is a prime.
+    if(is_prime(n)) {
+        _amount = n - 1;
+        return ErrorCode::Success;
+    }
+
+    // secord case: n is a power of numbr.
+    std::vector<ull> factor;
+    ErrorCode err = factorization(n, factor);
+    if (err != ErrorCode::Success) {
+        return err;
+    }
+
+    // it's a square of a number at least
+    const ull factor_size = factor.size();
+    assert(factor_size >= 2);
+
+    _amount = 0;
+    const ull first = factor[0];  
+    bool is_equal_all = true;
+
+    for(ull v : factor) {
+        if (first != v) {
+            is_equal_all = false;
+        }
+    }
+
+    if (is_equal_all) {
+        _amount = std::pow(first, factor_size) - std::pow(first, factor_size - 1);
+        return ErrorCode::Success;
+    }
+
+    // third case: It is the product of prime numbers. 
+    if (is_coprime(factor)) {
+        _amount = 1;
+        for( ull v : factor) {
+            _amount *= (v - 1);
+        }
+
+        return ErrorCode::Success;
+    }
+
+
+    return ErrorCode::Failed;
+}
+
+
+ErrorCode Prime::get_unit_order(const ull _a, const ull _n, ull& _x) {
+
+    ull a = _a;
+    ull n = _n;
+
+    for(ull i = 1; i < Max_Ull_Number; ++i) {
+        if (ull(std::pow(a, i)) % n == 1 ) {
+            _x = i;
+            break;
+        }
+    }
+
+    return ErrorCode::Success;
+}
+
+
+
+
+// Determine whether all elements in a set are coprime
 bool Prime::is_coprime(const std::vector<ull>& v) {
     
     const ull size = v.size(); 
@@ -338,7 +432,7 @@ bool Prime::is_coprime(const std::vector<ull>& v) {
     for(ull i = 0; i < size; ++i) {
         for(ull j = i + 1; j < size; ++j) {
 
-            if(calc_gcd_with_euclidean(v[i], v[j], gcd) != ErrorCode::Success) {
+            if(get_gcd_with_euclidean(v[i], v[j], gcd) != ErrorCode::Success) {
                 return false;
             }
 
@@ -358,7 +452,7 @@ bool Prime::calc_ti(const ull Mi, const ull mi, ull& ti) {
 
     const ull remainder = 1;
 
-    for(ull i = 1; i < MAX_ULL_NUMBER; ++i) {
+    for(ull i = 1; i < Max_Ull_Number; ++i) {
         if (Mi * i % mi == remainder) {
             ti = i;
             return true;

@@ -42,7 +42,7 @@ void PrimeTest::test_gcd_euclidean() {
     const ull b = 45;
     ull max_divisor = 0;
 
-    ErrorCode err = sp->calc_gcd_with_euclidean(a, b, max_divisor);
+    ErrorCode err = sp->get_gcd_with_euclidean(a, b, max_divisor);
     if(err != ErrorCode::Success) {
         std::cout << "call calc_greatest_common_divisor failed." << std::endl;
         return ;
@@ -214,10 +214,73 @@ void PrimeTest::test_chinese_remainder_theorem() {
 
     ull x = 0;
     ErrorCode err = sp->chinese_remainder_theorem(a, m, x);
-    if ( err != ErrorCode::Success) {
-        std::cout << "call chinese_remainder_theorem failed." << std::endl;
-        return ;
-    }
+    assert(err == ErrorCode::Success);
 
     assert(x == 23);
+}
+
+void PrimeTest::test_get_amounts_coprime_within_n() {
+
+    std::shared_ptr<Prime> sp(new Prime());
+
+    ull  n = 1;
+    ull count = 0;
+    ErrorCode err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 1);
+
+    n = 2;
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 1);
+
+    n = 3;
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 2);
+
+    n = 5;
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 4);
+
+    n = 9;
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 6);
+
+    n = 15;
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert(count == 8);
+}
+
+void PrimeTest::test_get_unit_order() {
+    std::shared_ptr<Prime> sp(new Prime());
+
+    const ull n  = 5;
+    const ull a = 2;
+    ull order = 0;
+    ErrorCode err = sp->get_unit_order(a, n, order);
+    assert(err == ErrorCode::Success);
+    assert(order == 4);
+}
+
+void PrimeTest::check_euler_theorem() {
+
+    std::shared_ptr<Prime> sp(new Prime());
+
+    const ull a = 3;
+    const ull n = 7;
+    ull count = 0;
+    ull gcd = 0;
+
+    ErrorCode err = sp->get_gcd_with_euclidean(a, n, gcd);
+    assert(err == ErrorCode::Success);
+    assert(gcd == 1);
+
+    err = sp->get_amounts_coprime_within_n(n, count);
+    assert(err == ErrorCode::Success);
+    assert( ull(std::pow(a, count)) % n == 1);
+
 }

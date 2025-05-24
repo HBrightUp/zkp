@@ -15,8 +15,9 @@ int main()
     up->test_gcd_euclidean();
     up->test_gcd__extend_euclidean();
     up->test_chinese_remainder_theorem();
-
-
+    up->test_get_amounts_coprime_within_n();
+    up->test_get_unit_order();
+    up->check_euler_theorem();
  
     return 0;
 } 
